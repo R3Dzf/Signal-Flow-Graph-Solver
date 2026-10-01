@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <title>Signal Flow Solver (Bosha)</title>
@@ -45,60 +45,87 @@
         .context-menu { display: none; position: fixed; background: white; border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000; width: 160px; border: 1px solid #ccc;}
         .menu-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 13px; font-weight: bold; color: #2f3640; }
         .menu-item:hover { background: #f1f2f6; }
+    
+        .language-switch {
+            display: flex;
+            justify-content: center;
+            margin-top: -7px;
+            margin-bottom: 3px;
+        }
+        .language-toggle {
+            border: 1px solid #3498db;
+            background: transparent;
+            color: #ecf0f1;
+            border-radius: 18px;
+            padding: 6px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+        .language-toggle:hover {
+            background: #3498db;
+            color: white;
+        }
+
     </style>
 </head>
 <body>
 
 <div class="sidebar">
     <h2>SFG Master 🦅</h2>
+    <div class="language-switch">
+        <button type="button" id="languageToggle" class="language-toggle">العربية</button>
+    </div>
+
     
     <div class="io-card">
-        <label>إدخال النظام (Input Node):</label>
+        <label>Input Node:</label>
         <input type="text" id="inputNode" value="R" onchange="syncIO()">
-        <label style="display:block; margin-top:10px;">إخراج النظام (Output Node):</label>
+        <label style="display:block; margin-top:10px;">Output Node:</label>
         <input type="text" id="outputNode" value="Y" onchange="syncIO()">
     </div>
 
     <div class="io-card" id="statusBox" style="display:none; border:1px solid rgba(231,76,60,0.5); background:#3a1f1f;">
-        <div style="font-weight:bold; color:#ffb4b4;">تنبيه:</div>
+        <div style="font-weight:bold; color:#ffb4b4;">Notice:</div>
         <div id="statusText" style="font-size:12px; line-height:1.5;"></div>
     </div>
     
-    <button class="btn btn-add" id="addNodeBtn" onclick="addNewNodeManual()">إضافة عقدة جديدة ➕</button>
-    <button class="btn btn-tool" onclick="SFG.camera.focus()">رجوع للرسم 🎯</button>
-    <button class="btn btn-tool" style="background:#c0392b; color:white;" onclick="clearFullCanvas()">مسح المخطط بالكامل 🗑️</button>
+    <button class="btn btn-add" id="addNodeBtn" onclick="addNewNodeManual()">Add New Node ➕</button>
+    <button class="btn btn-tool" onclick="SFG.camera.focus()">Focus Diagram 🎯</button>
+    <button class="btn btn-tool" style="background:#c0392b; color:white;" onclick="clearFullCanvas()">Clear Diagram 🗑️</button>
 
     <details class="io-card" style="cursor: pointer; padding: 12px; background: #2f3640;">
-        <summary style="font-weight: bold; color: #3498db; outline: none;">إعدادات الرسم المتقدمة ⚙️</summary>
+        <summary style="font-weight: bold; color: #3498db; outline: none;">Advanced Drawing Settings ⚙️</summary>
         <div style="margin-top: 15px; cursor: default;">
-            <label style="display:block; margin-bottom:6px; font-size:12px;">قوة التقويس التلقائي (Auto Curve):</label>
+            <label style="display:block; margin-bottom:6px; font-size:12px;">Auto Curve Strength:</label>
             <input type="range" id="curveStrength" min="0" max="140" value="70" oninput="updateSmartCurves()" style="width:95%;">
-            <label style="display:block; margin:10px 0 6px; font-size:12px;">تباعد الأسلاك المتعددة (Spacing):</label>
+            <label style="display:block; margin:10px 0 6px; font-size:12px;">Multiple Edge Spacing:</label>
             <input type="range" id="curveSpacing" min="10" max="80" value="30" oninput="updateSmartCurves()" style="width:95%;">
             <label style="display:block; margin-top:10px; font-size:12px; opacity:0.9;">
-                <input type="checkbox" id="avoidCross" checked onchange="updateSmartCurves()"> تجنّب تقاطع الأسلاك تلقائيًا
+                <input type="checkbox" id="avoidCross" checked onchange="updateSmartCurves()"> Automatically avoid edge crossings
             </label>
         </div>
     </details>
 
     <div class="io-card" id="propsCard">
-        <div style="font-weight:bold; margin-bottom:8px;">خصائص العنصر المحدد</div>
-        <div id="propsBody" style="font-size:12px; line-height:1.6; opacity:0.95;">لا يوجد تحديد</div>
+        <div style="font-weight:bold; margin-bottom:8px;">Selected Element Properties</div>
+        <div id="propsBody" style="font-size:12px; line-height:1.6; opacity:0.95;">Nothing selected</div>
     </div>
     
-    <button class="btn btn-tool" id="saveBtn" onclick="saveDiagram()">حفظ المخطط (Save JSON) 💾</button>
-    <button class="btn btn-tool" id="loadBtn" onclick="document.getElementById('fileIn').click()">تحميل مخطط (Load) 📂</button>
+    <button class="btn btn-tool" id="saveBtn" onclick="saveDiagram()">Save Diagram (JSON) 💾</button>
+    <button class="btn btn-tool" id="loadBtn" onclick="document.getElementById('fileIn').click()">Load Diagram 📂</button>
     <input type="file" id="fileIn" style="display:none" accept=".json" onchange="loadDiagram(event)">
-    <button class="btn btn-tool" id="exportBtn" onclick="exportToPNG()">تصدير كصورة PNG 🖼️</button>
+    <button class="btn btn-tool" id="exportBtn" onclick="exportToPNG()">Export as PNG 🖼️</button>
 
-    <button class="btn btn-solve" id="solveBtn" onclick="solveMaster()">حل المخطط الآن 🚀</button>
+    <button class="btn btn-solve" id="solveBtn" onclick="solveMaster()">Solve Diagram 🚀</button>
     <div style="margin-top: auto; padding-top: 15px; text-align: center; color: #7f8c8d; font-size: 13px; border-top: 1px solid #34495e;">
-    تم التطوير بواسطة <br>
+    Developed by <br>
     <span style="color: #3498db; font-weight: bold; font-size: 15px;">AhmedBosha</span> © 2026
     
     <div style="margin-top: 12px;">
         <a href="https://wa.me/201010449138" target="_blank" style="text-decoration: none; color: white; background-color: #25D366; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; display: inline-block; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
-            تواصل معي عبر واتساب 💬
+            Contact me on WhatsApp 💬
         </a>
     </div> </div>
 
@@ -108,10 +135,10 @@
 <div id="cy" tabindex="0"></div>
 
 <div class="result-panel" id="resPanel">
-    <div id="resResizeHandle" title="اسحب لتغيير حجم نافذة الحل"></div>
-    <button style="position:absolute; right:20px; top:10px; z-index:30; background:#e74c3c; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;" onclick="closeResults()">إغلاق X</button>
+    <div id="resResizeHandle" title="Drag to resize the results panel"></div>
+    <button style="position:absolute; right:20px; top:10px; z-index:30; background:#e74c3c; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;" onclick="closeResults()">Close X</button>
     <div id="resHint" style="position:absolute; left:20px; top:12px; z-index:30; font-size:12px; color:#7f8c8d; font-weight:bold; background:rgba(255,255,255,0.9); padding:6px 10px; border-radius:6px;">
-        تلميح: مرّر الماوس على عناصر الحل لتحديدها على الرسم. (التعديل مقفول أثناء عرض الحل)
+        Tip: Hover over solution elements to highlight them on the graph. Editing is locked while results are displayed.
     </div>
     <div class="res-container">
         <div class="res-text" id="resContent"></div>
@@ -568,7 +595,7 @@
         cy.nodes('.bend-handle').removeClass('active-handle');
         if(sel.empty()) {
             _propsEl = null;
-            body.innerText = 'لا يوجد تحديد';
+            body.innerText = 'Nothing selected';
             return;
         }
 
@@ -1525,5 +1552,6 @@
     cy.on('select unselect', 'node, edge', () => renderProps());
     cy.on('remove', 'node, edge', () => renderProps());
 </script>
+    <script src="i18n.js"></script>
 </body>
 </html>
