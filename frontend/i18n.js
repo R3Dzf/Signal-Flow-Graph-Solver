@@ -53,6 +53,7 @@
         ["إغلاق", "Close"],
         ["الدليل", "Tutorial"],
         ["فتح الدليل التفاعلي", "Open guided tutorial"],
+        ["إغلاق التنبيه", "Dismiss notice"],
 
         // Existing Arabic runtime messages
         ["Cytoscape.js غير محمّل. تأكد إن ملفات ./vendor موجودة جنب index.html.",
