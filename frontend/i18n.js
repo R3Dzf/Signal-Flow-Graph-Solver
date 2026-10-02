@@ -33,6 +33,25 @@
             "Tip: Hover over solution elements to highlight them on the graph. Editing is locked while results are displayed."
         ],
 
+        ["حل مخططات تدفق الإشارة", "Signal Flow Graph Solver"],
+        ["صيغة ماسون للكسب", "Mason's Gain Formula"],
+        ["إضافة عقدة جديدة", "Add New Node"],
+        ["العودة إلى الرسم", "Focus Diagram"],
+        ["مسح المخطط", "Clear Diagram"],
+        ["إعدادات الرسم المتقدمة", "Advanced Drawing Settings"],
+        ["حفظ المخطط", "Save Diagram"],
+        ["تحميل مخطط", "Load Diagram"],
+        ["تصدير PNG", "Export PNG"],
+        ["حل المخطط", "Solve Diagram"],
+        ["تحميل مثال", "Load Example"],
+        ["هندسة الحاسبات والتحكم", "Computer & Control Engineering"],
+        ["ابنِ مخطط تدفق إشارة", "Build a signal-flow graph"],
+        ["أضف عقدًا، وصِل بينها بمكاسب موجهة، ثم حل المخطط باستخدام صيغة ماسون للكسب.", "Add nodes, connect them with directed gains, then solve the graph using Mason's Gain Formula."],
+        ["تلميح: انقر نقرًا مزدوجًا على مساحة الرسم لإضافة عقدة، أو حمّل المثال من الشريط الجانبي.", "Tip: double-click the canvas to add a node, or load the example from the sidebar."],
+        ["تم تحميل المثال. يمكنك تعديله أو حله مباشرة.", "Example loaded. You can edit it or solve it directly."],
+        ["يجب أن تكون أسماء العقد فريدة. المكرر:", "Node names must be unique. Duplicate:"],
+        ["إغلاق", "Close"],
+
         // Existing Arabic runtime messages
         ["Cytoscape.js غير محمّل. تأكد إن ملفات ./vendor موجودة جنب index.html.",
          "Cytoscape.js could not be loaded. Make sure the required files are available next to index.html."],
@@ -146,28 +165,6 @@
     const skippedTags = new Set([
         "SCRIPT", "STYLE", "NOSCRIPT", "TEXTAREA"
     ]);
-
-    function normalizePair(pair) {
-        const [first, second] = pair;
-
-        const hasArabic = (text) =>
-            /[\u0600-\u06FF]/.test(String(text));
-
-        const firstArabic = hasArabic(first);
-        const secondArabic = hasArabic(second);
-
-        // Support both [Arabic, English] and [English, Arabic]
-        if (firstArabic && !secondArabic) {
-            return { ar: first, en: second };
-        }
-
-        if (!firstArabic && secondArabic) {
-            return { ar: second, en: first };
-        }
-
-        // Fallback for mixed strings
-        return { ar: first, en: second };
-    }
 
     function normalizePair(pair) {
         const [first, second] = pair;
