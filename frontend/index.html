@@ -575,28 +575,72 @@
 
     function loadExample() {
         if(guardEdit()) return;
+
         cy.elements().remove();
         $('#inputNode').val('R');
         $('#outputNode').val('Y');
 
+        // Keep the example intentionally clean and textbook-like:
+        // one straight forward path with two clearly separated feedback loops.
         cy.add([
-            {group:'nodes', data:{id:'n_in', label:'R'}, position:{x:90,y:300}},
-            {group:'nodes', data:{id:'ex_a', label:'A'}, position:{x:310,y:220}},
-            {group:'nodes', data:{id:'ex_b', label:'B'}, position:{x:520,y:300}},
-            {group:'nodes', data:{id:'n_out', label:'Y'}, position:{x:760,y:300}},
+            {group:'nodes', data:{id:'n_in', label:'R'}, position:{x:100,y:300}},
+            {group:'nodes', data:{id:'ex_a', label:'A'}, position:{x:340,y:300}},
+            {group:'nodes', data:{id:'ex_b', label:'B'}, position:{x:580,y:300}},
+            {group:'nodes', data:{id:'n_out', label:'Y'}, position:{x:820,y:300}},
+
             {group:'edges', data:{id:'ex_e1', source:'n_in', target:'ex_a', gain:'G1'}},
             {group:'edges', data:{id:'ex_e2', source:'ex_a', target:'ex_b', gain:'G2'}},
             {group:'edges', data:{id:'ex_e3', source:'ex_b', target:'n_out', gain:'G3'}},
-            {group:'edges', data:{id:'ex_e4', source:'ex_b', target:'ex_a', gain:'-H1'}},
-            {group:'edges', data:{id:'ex_e5', source:'n_out', target:'ex_b', gain:'-H2'}}
+
+            {group:'edges', classes:'manual-curved example-feedback',
+             data:{id:'ex_e4', source:'ex_b', target:'ex_a', gain:'-H1'}},
+            {group:'edges', classes:'manual-curved example-feedback',
+             data:{id:'ex_e5', source:'n_out', target:'ex_b', gain:'-H2'}}
         ]);
 
-        clearValidationMarks();
+        // Let the normal layout logic settle the straight branches first.
         updateSmartCurves();
+
+        // Forward path: perfectly straight, with labels slightly above the line.
+        ['ex_e1', 'ex_e2', 'ex_e3'].forEach(id => {
+            const e = cy.getElementById(id);
+            e.style({
+                'curve-style': 'straight',
+                'text-margin-y': -14
+            });
+        });
+
+        // Feedback branches: smooth lower arcs so they never cover the
+        // forward path, arrowheads, or gain labels.
+        const h1 = cy.getElementById('ex_e4');
+        const h2 = cy.getElementById('ex_e5');
+
+        h1.style({
+            'curve-style': 'unbundled-bezier',
+            'control-point-weights': 0.5,
+            'control-point-distances': -105,
+            'text-margin-y': 16
+        });
+
+        h2.style({
+            'curve-style': 'unbundled-bezier',
+            'control-point-weights': 0.5,
+            'control-point-distances': -125,
+            'text-margin-y': 18
+        });
+
+        clearValidationMarks();
         renderProps();
         updateEmptyState();
         setStatus('Example loaded. You can edit it or solve it directly.');
-        setTimeout(() => SFG.camera.focus(70), 30);
+
+        // Fit after Cytoscape has rendered the explicit curves.
+        setTimeout(() => {
+            try {
+                cy.resize();
+                cy.fit(cy.elements(), 85);
+            } catch(e) {}
+        }, 60);
     }
 
     
