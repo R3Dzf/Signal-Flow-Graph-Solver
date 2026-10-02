@@ -52,6 +52,7 @@
         ["يجب أن تكون أسماء العقد فريدة. المكرر:", "Node names must be unique. Duplicate:"],
         ["إغلاق", "Close"],
         ["الدليل", "Tutorial"],
+        ["فتح الدليل التفاعلي", "Open guided tutorial"],
 
         // Existing Arabic runtime messages
         ["Cytoscape.js غير محمّل. تأكد إن ملفات ./vendor موجودة جنب index.html.",
