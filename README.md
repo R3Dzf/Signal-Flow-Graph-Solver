@@ -1,57 +1,44 @@
 # Signal Flow Graph Solver
 
-A web-based engineering tool for solving **Signal Flow Graph (SFG)** problems using **Mason's Gain Formula** and symbolic mathematics.
+An interactive web application for building and solving **Signal Flow Graphs (SFGs)** with **Mason's Gain Formula** and symbolic mathematics.
 
-The application allows users to build a signal-flow graph, validate its structure, identify forward paths and loops, calculate non-touching loop combinations, and obtain the final transfer function with step-by-step intermediate results.
+**Live demo:** https://sfg-solver.onrender.com/
 
-## Key Features
+## Highlights
 
-- Interactive signal-flow graph input through a web interface.
-- Symbolic edge gains such as `G1`, `H1`, or algebraic expressions.
-- Graph validation before solving.
-- Automatic detection of:
-  - Forward paths
-  - Individual loops
-  - Non-touching loop combinations
-- Automatic calculation of Mason's determinant (Δ) and path cofactors (Δk).
-- Final symbolic transfer-function calculation.
-- Independent transfer-function verification using a linear-system formulation.
-- Support for parallel branches through internal dummy-node handling.
-- API-based backend that can be reused by other frontends.
+- Interactive graph editor for nodes and directed branches.
+- Symbolic gains such as `G1`, `H1`, `G1*G2`, and rational expressions.
+- Automatic detection of forward paths, individual loops, and non-touching loop combinations.
+- Mason's determinant (Δ), path cofactors (Δk), numerator, and final transfer function.
+- Independent transfer-function verification using a linear-equation formulation.
+- Graph validation, including duplicate node-name protection and input/output connectivity checks.
+- Support for parallel branches.
+- Built-in example graph for quick demonstration.
+- Save/load diagrams as JSON and export the graph as PNG.
+- English and Arabic interface, with English as the default language.
 
 ## Tech Stack
 
-### Backend
-- Python
-- FastAPI
-- NetworkX
-- SymPy
-- Pydantic
-
-### Frontend
-- HTML / CSS / JavaScript
-- Cytoscape.js
-- Dagre graph layout
-- Konva.js
-- jQuery
+**Backend:** Python, FastAPI, NetworkX, SymPy, Pydantic  
+**Frontend:** HTML, CSS, JavaScript, Cytoscape.js, Konva.js, jQuery
 
 ## How It Works
 
-1. The user defines graph nodes and directed connections with symbolic gains.
-2. The backend validates the graph and verifies that an input-to-output path exists.
-3. NetworkX is used to find simple paths and cycles.
-4. SymPy performs symbolic gain calculations and expression simplification.
-5. Mason's Gain Formula is evaluated from the detected paths and loops.
-6. The result is cross-checked using an independently constructed linear-equation system.
-7. The frontend displays the transfer function and the graph-analysis details.
+1. Build the signal-flow graph and assign gains to the directed branches.
+2. The application validates the graph before solving.
+3. NetworkX identifies forward paths and feedback loops.
+4. SymPy evaluates the symbolic expressions.
+5. Mason's Gain Formula is applied to calculate the transfer function.
+6. The result is cross-checked using an independently constructed linear system.
+7. The interface displays the final result together with the intermediate engineering steps.
 
-## API Endpoints
+## API
 
 ### `POST /validate`
-Validates graph structure, node names, edge gains, and input/output connectivity.
+Validates node names, edge gains, graph structure, and input/output connectivity.
 
 ### `POST /solve`
-Returns the transfer function together with forward paths, loops, non-touching loop combinations, Δ, and symbolic intermediate results.
+Returns the transfer function, forward paths, loops, non-touching loop combinations, Δ, and intermediate symbolic results.
 
 ## Run Locally
 
@@ -69,29 +56,24 @@ http://127.0.0.1:8000
 ## Project Structure
 
 ```text
-sfg-solver/
+Signal-Flow-Graph-Solver/
 ├── app.py
 ├── requirements.txt
 ├── frontend/
 │   ├── index.html
+│   ├── i18n.js
 │   └── JavaScript libraries
 └── README.md
 ```
 
 ## Engineering Value
 
-This project combines **Control Systems**, **Graph Theory**, **Symbolic Mathematics**, and **Web Development** in one practical application. It was built to automate calculations that are normally solved manually using Mason's Gain Formula and to expose the intermediate engineering steps instead of returning only a final result.
+The project combines **Control Systems**, **Graph Theory**, **Symbolic Mathematics**, and **Web Development** in one practical engineering tool. It is designed to show the intermediate Mason-formula calculations rather than only returning a final transfer function.
 
-## Future Improvements
+## Contact
 
-- Add automated test coverage for known SFG examples.
-- Add graph import/export.
-- Add downloadable solution reports.
-- Improve responsive/mobile graph editing.
-- Add a hosted live demo.
+**Ahmed Youssef Bosha**  
+Computer & Control Engineering — Tanta University
 
-## Author
-
-**Ahmed Youssef Bosha**
-
-Computer and Control Engineering — Tanta University
+- GitHub: https://github.com/R3Dzf
+- WhatsApp: https://wa.me/201010449138
