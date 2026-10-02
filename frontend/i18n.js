@@ -147,12 +147,53 @@
         "SCRIPT", "STYLE", "NOSCRIPT", "TEXTAREA"
     ]);
 
+    function normalizePair(pair) {
+        const [first, second] = pair;
+
+        const hasArabic = (text) =>
+            /[\u0600-\u06FF]/.test(String(text));
+
+        const firstArabic = hasArabic(first);
+        const secondArabic = hasArabic(second);
+
+        // Support both [Arabic, English] and [English, Arabic]
+        if (firstArabic && !secondArabic) {
+            return { ar: first, en: second };
+        }
+
+        if (!firstArabic && secondArabic) {
+            return { ar: second, en: first };
+        }
+
+        // Fallback for mixed strings
+        return { ar: first, en: second };
+    }
+
+    function normalizePair(pair) {
+        const [first, second] = pair;
+
+        const hasArabic = (text) =>
+            /[\u0600-\u06FF]/.test(String(text));
+
+        if (hasArabic(first) && !hasArabic(second)) {
+            return { ar: first, en: second };
+        }
+
+        if (!hasArabic(first) && hasArabic(second)) {
+            return { ar: second, en: first };
+        }
+
+        return { ar: first, en: second };
+    }
+
     function orderedPairs(lang) {
-        return [...pairs].sort((a, b) => {
-            const aSource = lang === "en" ? a[0] : a[1];
-            const bSource = lang === "en" ? b[0] : b[1];
-            return bSource.length - aSource.length;
-        });
+        return pairs
+            .map(normalizePair)
+            .sort((a, b) => {
+                const aSource = lang === "en" ? a.ar : a.en;
+                const bSource = lang === "en" ? b.ar : b.en;
+                return bSource.length - aSource.length;
+            });
     }
 
     function translatePatterns(value, lang) {
@@ -193,9 +234,9 @@
 
         let output = String(value);
 
-        for (const [ar, en] of orderedPairs(lang)) {
-            const from = lang === "en" ? ar : en;
-            const to = lang === "en" ? en : ar;
+        for (const pair of orderedPairs(lang)) {
+            const from = lang === "en" ? pair.ar : pair.en;
+            const to = lang === "en" ? pair.en : pair.ar;
 
             if (from && output.includes(from)) {
                 output = output.split(from).join(to);
