@@ -2,7 +2,9 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <title>Signal Flow Solver (Bosha)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive Signal Flow Graph solver using Mason\'s Gain Formula.">
+    <title>Signal Flow Graph Solver | Ahmed Youssef Bosha</title>
     <script src="jquery-3.6.0.min.js"></script>
 <script src="cytoscape.min.js"></script>
 <script src="lodash.min.js"></script>
@@ -68,12 +70,111 @@
             color: white;
         }
 
+    
+        /* University-ready presentation layer */
+        :root {
+            --accent: #3b82f6;
+            --accent-dark: #2563eb;
+            --surface: #111827;
+            --surface-2: #1f2937;
+            --surface-3: #334155;
+            --text-soft: #94a3b8;
+        }
+        .sidebar {
+            width: 350px;
+            background: var(--surface);
+            padding: 24px;
+            gap: 10px;
+            box-shadow: 4px 0 24px rgba(15, 23, 42, 0.18);
+        }
+        .brand { text-align: center; padding: 2px 6px 4px; }
+        .brand-title { color: #f8fafc; font-size: 21px; font-weight: 750; letter-spacing: -0.3px; }
+        .brand-subtitle { color: var(--text-soft); font-size: 12px; margin-top: 4px; }
+        .io-card {
+            background: var(--surface-2);
+            border: 1px solid rgba(148, 163, 184, 0.10);
+            border-radius: 10px;
+        }
+        .sidebar input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #dbe3ee;
+            outline: none;
+        }
+        .sidebar input[type="text"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+        .btn {
+            border-radius: 8px;
+            font-weight: 650;
+            letter-spacing: 0.05px;
+        }
+        .btn:hover { filter: brightness(1.07); transform: translateY(-1px); }
+        .btn-solve {
+            background: var(--accent-dark);
+            color: white;
+            box-shadow: 0 7px 18px rgba(37, 99, 235, 0.22);
+        }
+        .btn-example { background: #0f766e; color: white; }
+        .language-toggle { min-width: 92px; }
+        .contact-card {
+            margin-top: auto;
+            padding-top: 16px;
+            border-top: 1px solid #334155;
+            text-align: center;
+        }
+        .contact-label { color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: .8px; }
+        .contact-name { color: #f8fafc; font-size: 14px; font-weight: 700; margin-top: 4px; }
+        .contact-role { color: #94a3b8; font-size: 11px; margin-top: 3px; }
+        .contact-links { display: flex; gap: 8px; margin-top: 12px; }
+        .contact-link {
+            flex: 1;
+            padding: 8px 10px;
+            border-radius: 7px;
+            text-decoration: none;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            transition: .2s ease;
+        }
+        .contact-link:hover { transform: translateY(-1px); filter: brightness(1.08); }
+        .contact-link.github { background: #334155; }
+        .contact-link.whatsapp { background: #15803d; }
+        .canvas-empty-state {
+            position: absolute;
+            z-index: 4;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: min(520px, 72%);
+            text-align: center;
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity .2s ease;
+        }
+        .canvas-empty-state.hidden { opacity: 0; }
+        .empty-title { color: #0f172a; font-size: 25px; font-weight: 750; letter-spacing: -0.4px; }
+        .empty-copy { margin-top: 9px; color: #64748b; font-size: 14px; line-height: 1.55; }
+        .empty-tip { margin-top: 10px; color: #94a3b8; font-size: 12px; }
+        .result-panel { border-top-color: var(--accent-dark); }
+        @media (max-width: 820px) {
+            body { flex-direction: column; overflow: auto; height: auto; min-height: 100vh; }
+            .sidebar { width: auto; max-height: 46vh; box-sizing: border-box; }
+            .main { min-height: 54vh; height: 54vh; }
+            .contact-links { max-width: 360px; margin-left: auto; margin-right: auto; }
+            .canvas-empty-state { width: 82%; }
+        }
+
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <h2>SFG Master 🦅</h2>
+    <div class="brand">
+        <div class="brand-title">Signal Flow Graph Solver</div>
+        <div class="brand-subtitle">Mason's Gain Formula</div>
+    </div>
     <div class="language-switch">
         <button type="button" id="languageToggle" class="language-toggle">العربية</button>
     </div>
@@ -91,12 +192,13 @@
         <div id="statusText" style="font-size:12px; line-height:1.5;"></div>
     </div>
     
-    <button class="btn btn-add" id="addNodeBtn" onclick="addNewNodeManual()">Add New Node ➕</button>
-    <button class="btn btn-tool" onclick="SFG.camera.focus()">Focus Diagram 🎯</button>
-    <button class="btn btn-tool" style="background:#c0392b; color:white;" onclick="clearFullCanvas()">Clear Diagram 🗑️</button>
+    <button class="btn btn-add" id="addNodeBtn" onclick="addNewNodeManual()">Add New Node</button>
+    <button class="btn btn-tool" onclick="SFG.camera.focus()">Focus Diagram</button>
+    <button class="btn btn-example" onclick="loadExample()">Load Example</button>
+    <button class="btn btn-tool" style="background:#c0392b; color:white;" onclick="clearFullCanvas()">Clear Diagram</button>
 
     <details class="io-card" style="cursor: pointer; padding: 12px; background: #2f3640;">
-        <summary style="font-weight: bold; color: #3498db; outline: none;">Advanced Drawing Settings ⚙️</summary>
+        <summary style="font-weight: bold; color: #3498db; outline: none;">Advanced Drawing Settings</summary>
         <div style="margin-top: 15px; cursor: default;">
             <label style="display:block; margin-bottom:6px; font-size:12px;">Auto Curve Strength:</label>
             <input type="range" id="curveStrength" min="0" max="140" value="70" oninput="updateSmartCurves()" style="width:95%;">
@@ -113,30 +215,35 @@
         <div id="propsBody" style="font-size:12px; line-height:1.6; opacity:0.95;">Nothing selected</div>
     </div>
     
-    <button class="btn btn-tool" id="saveBtn" onclick="saveDiagram()">Save Diagram (JSON) 💾</button>
-    <button class="btn btn-tool" id="loadBtn" onclick="document.getElementById('fileIn').click()">Load Diagram 📂</button>
+    <button class="btn btn-tool" id="saveBtn" onclick="saveDiagram()">Save Diagram</button>
+    <button class="btn btn-tool" id="loadBtn" onclick="document.getElementById('fileIn').click()">Load Diagram</button>
     <input type="file" id="fileIn" style="display:none" accept=".json" onchange="loadDiagram(event)">
-    <button class="btn btn-tool" id="exportBtn" onclick="exportToPNG()">Export as PNG 🖼️</button>
+    <button class="btn btn-tool" id="exportBtn" onclick="exportToPNG()">Export PNG</button>
 
-    <button class="btn btn-solve" id="solveBtn" onclick="solveMaster()">Solve Diagram 🚀</button>
-    <div style="margin-top: auto; padding-top: 15px; text-align: center; color: #7f8c8d; font-size: 13px; border-top: 1px solid #34495e;">
-    Developed by <br>
-    <span style="color: #3498db; font-weight: bold; font-size: 15px;">AhmedBosha</span> © 2026
-    
-    <div style="margin-top: 12px;">
-        <a href="https://wa.me/201010449138" target="_blank" style="text-decoration: none; color: white; background-color: #25D366; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; display: inline-block; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
-            Contact me on WhatsApp 💬
-        </a>
-    </div> </div>
+    <button class="btn btn-solve" id="solveBtn" onclick="solveMaster()">Solve Diagram</button>
+    <div class="contact-card">
+        <div class="contact-label">Developed by</div>
+        <div class="contact-name">Ahmed Youssef Bosha</div>
+        <div class="contact-role">Computer &amp; Control Engineering</div>
+        <div class="contact-links">
+            <a class="contact-link github" href="https://github.com/R3Dzf" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a class="contact-link whatsapp" href="https://wa.me/201010449138" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        </div>
+    </div>
 
 </div>
 
 <div class="main" id="main">
+<div id="canvasEmptyState" class="canvas-empty-state">
+    <div class="empty-title">Build a signal-flow graph</div>
+    <div class="empty-copy">Add nodes, connect them with directed gains, then solve the graph using Mason's Gain Formula.</div>
+    <div class="empty-tip">Tip: double-click the canvas to add a node, or load the example from the sidebar.</div>
+</div>
 <div id="cy" tabindex="0"></div>
 
 <div class="result-panel" id="resPanel">
     <div id="resResizeHandle" title="Drag to resize the results panel"></div>
-    <button style="position:absolute; right:20px; top:10px; z-index:30; background:#e74c3c; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;" onclick="closeResults()">Close X</button>
+    <button style="position:absolute; right:20px; top:10px; z-index:30; background:#475569; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;" onclick="closeResults()">Close</button>
     <div id="resHint" style="position:absolute; left:20px; top:12px; z-index:30; font-size:12px; color:#7f8c8d; font-weight:bold; background:rgba(255,255,255,0.9); padding:6px 10px; border-radius:6px;">
         Tip: Hover over solution elements to highlight them on the graph. Editing is locked while results are displayed.
     </div>
@@ -422,6 +529,69 @@
         cy.getElementById('n_out').data('label', $('#outputNode').val());
     }
 
+    function getRealNodes() {
+        return cy.nodes().filter(n => !n.hasClass('cursor-node') && !n.hasClass('bend-handle'));
+    }
+
+    function isNodeLabelTaken(label, excludeId=null) {
+        const wanted = String(label || '').trim();
+        return getRealNodes().some(n => n.id() !== excludeId && String(n.data('label') || '').trim() === wanted);
+    }
+
+    function validateUniqueNodeNames() {
+        const seen = new Map();
+        const duplicates = new Set();
+        getRealNodes().forEach(n => {
+            const label = String(n.data('label') || '').trim();
+            if(!label) return;
+            if(seen.has(label)) {
+                duplicates.add(label);
+                seen.get(label).addClass('invalid');
+                n.addClass('invalid');
+            } else {
+                seen.set(label, n);
+            }
+        });
+        if(duplicates.size) {
+            setStatus('Node names must be unique. Duplicate: ' + [...duplicates].join(', '));
+            return false;
+        }
+        return true;
+    }
+
+    function updateEmptyState() {
+        const empty = document.getElementById('canvasEmptyState');
+        if(!empty) return;
+        const hasContent = cy.edges().filter(e => !e.hasClass('temp-wire')).length > 0 || getRealNodes().length > 2;
+        empty.classList.toggle('hidden', hasContent);
+    }
+
+    function loadExample() {
+        if(guardEdit()) return;
+        cy.elements().remove();
+        $('#inputNode').val('R');
+        $('#outputNode').val('Y');
+
+        cy.add([
+            {group:'nodes', data:{id:'n_in', label:'R'}, position:{x:90,y:300}},
+            {group:'nodes', data:{id:'ex_a', label:'A'}, position:{x:310,y:220}},
+            {group:'nodes', data:{id:'ex_b', label:'B'}, position:{x:520,y:300}},
+            {group:'nodes', data:{id:'n_out', label:'Y'}, position:{x:760,y:300}},
+            {group:'edges', data:{id:'ex_e1', source:'n_in', target:'ex_a', gain:'G1'}},
+            {group:'edges', data:{id:'ex_e2', source:'ex_a', target:'ex_b', gain:'G2'}},
+            {group:'edges', data:{id:'ex_e3', source:'ex_b', target:'n_out', gain:'G3'}},
+            {group:'edges', data:{id:'ex_e4', source:'ex_b', target:'ex_a', gain:'-H1'}},
+            {group:'edges', data:{id:'ex_e5', source:'n_out', target:'ex_b', gain:'-H2'}}
+        ]);
+
+        clearValidationMarks();
+        updateSmartCurves();
+        renderProps();
+        updateEmptyState();
+        setStatus('Example loaded. You can edit it or solve it directly.');
+        setTimeout(() => SFG.camera.focus(70), 30);
+    }
+
     
     let _spawnIdx = 0;
     function ensureVisible(ele) {
@@ -438,7 +608,12 @@
     function addNewNodeManual() {
         if(guardEdit()) return;
         let name = prompt("اسم العقدة الجديدة:");
+        name = (name || '').trim();
         if(name) {
+            if(isNodeLabelTaken(name)) {
+                setStatus('Node names must be unique. Duplicate: ' + name);
+                return;
+            }
             let pan = cy.pan(); let zoom = cy.zoom();
             let x = (cy.width()/2 - pan.x)/zoom; let y = (cy.height()/2 - pan.y)/zoom;
             _spawnIdx += 1;
@@ -563,7 +738,12 @@
         const now = Date.now();
         if(now - _lastBgTapAt < 320) {
             let n = prompt("اسم العقدة:");
+            n = (n || '').trim();
             if(n) {
+                if(isNodeLabelTaken(n)) {
+                    setStatus('Node names must be unique. Duplicate: ' + n);
+                    return;
+                }
                 const newNode = cy.add({group:'nodes', data:{id: makeId('node_'), label:n}, position: e.position});
                 newNode.select();
                 ensureVisible(newNode);
@@ -650,6 +830,11 @@
         const v = (document.getElementById('propsInput')?.value ?? '').trim();
         if(_propsEl.isNode && _propsEl.isNode()) {
             if(v) {
+                if(isNodeLabelTaken(v, _propsEl.id())) {
+                    setStatus('Node names must be unique. Duplicate: ' + v);
+                    focusPropsInput();
+                    return;
+                }
                 _propsEl.data('label', v);
                 if(_propsEl.id()==='n_in') $('#inputNode').val(v);
                 if(_propsEl.id()==='n_out') $('#outputNode').val(v);
@@ -1251,7 +1436,10 @@
    
     async function solveMaster() {
         clearValidationMarks();
+        if(!validateUniqueNodeNames()) return;
+        const nodeLabels = getRealNodes().map(n => String(n.data('label') || '').trim());
         let payload = {
+            nodes: nodeLabels,
             input_node: $('#inputNode').val(),
             output_node: $('#outputNode').val(),
             connections: cy.edges()
@@ -1533,6 +1721,7 @@
             updateSmartCurves();
             renderProps();
             setStatus('تم مسح المخطط وبدء رسم جديد.');
+            updateEmptyState();
             SFG.camera.focus();
         }
     }
@@ -1549,8 +1738,9 @@
     updateSmartCurves();
     renderProps();
     initResultsResizer();
+    updateEmptyState();
     cy.on('select unselect', 'node, edge', () => renderProps());
-    cy.on('remove', 'node, edge', () => renderProps());
+    cy.on('add remove', 'node, edge', () => { renderProps(); updateEmptyState(); });
 </script>
     <script src="i18n.js"></script>
 </body>
