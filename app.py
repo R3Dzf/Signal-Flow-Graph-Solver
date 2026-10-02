@@ -19,6 +19,7 @@ class DiagramData(BaseModel):
     connections: list[Connection]
     input_node: str
     output_node: str
+    nodes: list[str] = []
 
 def _normalize_gain(expr: str) -> str:
     return (expr or "").replace("^", "**")
@@ -33,7 +34,23 @@ def validate_diagram(data: DiagramData):
     if not (data.output_node or "").strip():
         errors.append({"type": "missing_output", "message": "Output node name is empty."})
 
+    node_names = [(n or "").strip() for n in data.nodes if (n or "").strip()]
+    seen_nodes: set[str] = set()
+    duplicate_nodes: set[str] = set()
+    for node in node_names:
+        if node in seen_nodes:
+            duplicate_nodes.add(node)
+        seen_nodes.add(node)
+
+    if duplicate_nodes:
+        errors.append({
+            "type": "duplicate_node_names",
+            "message": "Node names must be unique.",
+            "nodes": sorted(duplicate_nodes),
+        })
+
     G = nx.DiGraph()
+    G.add_nodes_from(node_names)
     dummy_idx = 0
     for conn in data.connections:
         frm = (conn.from_node or "").strip()
@@ -176,7 +193,12 @@ def _transfer_function_linear(G: nx.DiGraph, input_node: str, output_node: str) 
 @app.post("/solve")
 def solve_diagram(data: DiagramData):
     try:
+        node_names = [(n or "").strip() for n in data.nodes if (n or "").strip()]
+        if len(node_names) != len(set(node_names)):
+            return {"status": "error", "message": "Node names must be unique."}
+
         G = nx.DiGraph()
+        G.add_nodes_from(node_names)
         dummy_idx = 0
         for conn in data.connections:
             sym_weight = sp.sympify(_normalize_gain(conn.gain))
