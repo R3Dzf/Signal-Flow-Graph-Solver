@@ -162,7 +162,23 @@
         .empty-title { color: #0f172a; font-size: 25px; font-weight: 750; letter-spacing: -0.4px; }
         .empty-copy { margin-top: 9px; color: #64748b; font-size: 14px; line-height: 1.55; }
         .empty-tip { margin-top: 10px; color: #94a3b8; font-size: 12px; }
-        .result-panel { border-top-color: var(--accent-dark); }
+        .status-close {
+            position: absolute;
+            top: 8px;
+            right: 9px;
+            width: 24px;
+            height: 24px;
+            border: 0;
+            border-radius: 6px;
+            background: rgba(255,255,255,.08);
+            color: #fecaca;
+            font-size: 18px;
+            line-height: 1;
+            cursor: pointer;
+        }
+        .status-close:hover { background: rgba(255,255,255,.15); color: #fff; }
+        html[dir="rtl"] .status-close { right: auto; left: 9px; }
+                .result-panel { border-top-color: var(--accent-dark); }
         @media (max-width: 820px) {
             body { flex-direction: column; overflow: auto; height: auto; min-height: 100vh; }
             .sidebar { width: auto; max-height: 46vh; box-sizing: border-box; }
@@ -193,7 +209,8 @@
         <input type="text" id="outputNode" value="Y" onchange="syncIO()">
     </div>
 
-    <div class="io-card" id="statusBox" style="display:none; border:1px solid rgba(231,76,60,0.5); background:#3a1f1f;">
+    <div class="io-card" id="statusBox" style="display:none; position:relative; border:1px solid rgba(231,76,60,0.5); background:#3a1f1f; padding-right:38px;">
+        <button type="button" class="status-close" onclick="hideStatus()" title="Dismiss notice" aria-label="Dismiss notice">×</button>
         <div style="font-weight:bold; color:#ffb4b4;">Notice:</div>
         <div id="statusText" style="font-size:12px; line-height:1.5;"></div>
     </div>
@@ -288,6 +305,11 @@
         if(!box || !text) return;
         box.style.display = 'block';
         text.innerText = msg;
+    }
+
+    function hideStatus() {
+        const box = document.getElementById('statusBox');
+        if(box) box.style.display = 'none';
     }
 
     if(typeof cytoscape !== 'function') {
@@ -693,6 +715,7 @@
         if(wireDrag.cursorNode) wireDrag.cursorNode.remove();
         wireDrag = { active: false, source: null, cursorNode: null, tempEdge: null };
         cy.$('node').removeClass('highlight');
+        hideStatus();
     }
 
     function createEdge(sourceNode, targetNode) {
@@ -1486,6 +1509,7 @@
 
    
     async function solveMaster() {
+        hideStatus();
         clearValidationMarks();
         if(!validateUniqueNodeNames()) return;
         const nodeLabels = getRealNodes().map(n => String(n.data('label') || '').trim());
