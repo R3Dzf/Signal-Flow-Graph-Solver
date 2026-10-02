@@ -51,6 +51,7 @@
         ["تم تحميل المثال. يمكنك تعديله أو حله مباشرة.", "Example loaded. You can edit it or solve it directly."],
         ["يجب أن تكون أسماء العقد فريدة. المكرر:", "Node names must be unique. Duplicate:"],
         ["إغلاق", "Close"],
+        ["الدليل", "Tutorial"],
 
         // Existing Arabic runtime messages
         ["Cytoscape.js غير محمّل. تأكد إن ملفات ./vendor موجودة جنب index.html.",
