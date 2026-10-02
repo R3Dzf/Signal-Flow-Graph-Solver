@@ -143,6 +143,7 @@
             transition: .2s ease;
         }
         .contact-link:hover { transform: translateY(-1px); filter: brightness(1.08); }
+        .contact-link.email { background: transparent; color: #93c5fd; }
         .contact-link.github { background: transparent; color: #cbd5e1; }
         .contact-link.whatsapp { background: transparent; color: #86efac; }
         .canvas-empty-state {
@@ -181,7 +182,7 @@
     </div>
     <div class="language-switch">
         <button type="button" id="languageToggle" class="language-toggle">العربية</button>
-        <button type="button" id="tutorialBtn" class="language-toggle tutorial-launch">Tutorial</button>
+        <button type="button" id="tutorialBtn" class="language-toggle tutorial-launch" title="Open guided tutorial">Tutorial</button>
     </div>
 
     
@@ -231,6 +232,7 @@
         <div class="contact-name">Ahmed Youssef Bosha</div>
         <div class="contact-role">Computer &amp; Control Engineering</div>
         <div class="contact-links">
+            <a class="contact-link email" href="mailto:ahmedyoussefmansourbosha@gmail.com">Email</a>
             <a class="contact-link github" href="https://github.com/R3Dzf" target="_blank" rel="noopener noreferrer">GitHub</a>
             <a class="contact-link whatsapp" href="https://wa.me/201010449138" target="_blank" rel="noopener noreferrer">WhatsApp</a>
         </div>
