@@ -62,6 +62,27 @@ For a quick demonstration, press **Load Example** and then **Solve Diagram**.
 
 ---
 
+## Supported Gain Expressions
+
+Branch gains are parsed as **symbolic mathematics**, never as executable Python.
+Examples include:
+
+- `G1*G2` or `G_1*G_2` — multiply symbolic gains.
+- `1/(s+1)` — rational transfer expressions.
+- `G^2` — exponentiation (the caret is accepted).
+- `sin(s)`, `sqrt(s^2+1)`, `exp(-s)`, and `Rational(1,2)` — supported math functions.
+
+Allowed operations: addition, subtraction, multiplication, division, powers,
+parentheses, numbers, variable names, and selected mathematical functions.
+Other Python constructs (imports, property access, indexing, string literals,
+arbitrary function calls, or comprehensions) are rejected. To reduce resource
+abuse, gains have limits on expression length and complexity.
+
+If the solver reports an invalid gain, replace it with a mathematical
+expression using the supported syntax.
+
+---
+
 ## How the Solver Works
 
 The application follows the same engineering workflow used when solving a Signal Flow Graph manually:

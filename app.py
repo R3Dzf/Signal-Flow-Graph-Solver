@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
+from gain_parser import parse_gain
 import networkx as nx
 import sympy as sp
 import itertools
@@ -20,9 +21,6 @@ class DiagramData(BaseModel):
     input_node: str
     output_node: str
     nodes: list[str] = []
-
-def _normalize_gain(expr: str) -> str:
-    return (expr or "").replace("^", "**")
 
 @app.post("/validate")
 def validate_diagram(data: DiagramData):
@@ -66,7 +64,7 @@ def validate_diagram(data: DiagramData):
             continue
 
         try:
-            sym_weight = sp.sympify(_normalize_gain(raw_gain))
+            sym_weight = parse_gain(raw_gain)
         except Exception as e:
             errors.append({"type": "invalid_gain", "message": f"Invalid gain on edge {frm} -> {to}: {e}", "edge": {"from": frm, "to": to}, "gain": raw_gain})
             continue
@@ -201,7 +199,7 @@ def solve_diagram(data: DiagramData):
         G.add_nodes_from(node_names)
         dummy_idx = 0
         for conn in data.connections:
-            sym_weight = sp.sympify(_normalize_gain(conn.gain))
+            sym_weight = parse_gain(conn.gain)
             frm = (conn.from_node or "").strip()
             to = (conn.to_node or "").strip()
             
