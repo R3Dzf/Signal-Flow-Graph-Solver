@@ -219,6 +219,11 @@ def solve_diagram(data: DiagramData):
             return {"status": "error", "message": f"Input node '{data.input_node}' not found."}
         if data.output_node not in real_nodes:
             return {"status": "error", "message": f"Output node '{data.output_node}' not found."}
+        if not nx.has_path(G, data.input_node, data.output_node):
+            return {
+                "status": "error",
+                "message": f"No forward path from '{data.input_node}' to '{data.output_node}'.",
+            }
 
         raw_loops = list(nx.simple_cycles(G))
         loops_data = []
