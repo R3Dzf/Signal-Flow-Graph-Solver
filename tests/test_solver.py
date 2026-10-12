@@ -95,6 +95,26 @@ class SolverRegressionTests(unittest.TestCase):
         self.assertEqual(result["status"], "error")
         self.assertIn("missing_output_node", {e["type"] for e in result["errors"]})
 
+    def test_solve_rejects_disconnected_output(self):
+        data = diagram(
+            [("S", "A", "G")],
+            nodes=["S", "A", "T"],
+        )
+        validated = validate_diagram(data)
+        solved = solve_diagram(data)
+        self.assertEqual(validated["status"], "error")
+        self.assertIn("no_path", {error["type"] for error in validated["errors"]})
+        self.assertEqual(solved["status"], "error")
+        self.assertIn("No forward path", solved["message"])
+        self.assertNotIn("transfer_function_expr", solved)
+
+    def test_solve_rejects_reverse_only_connection(self):
+        data = diagram([("T", "S", "H")])
+        self.assertEqual(validate_diagram(data)["status"], "error")
+        solved = solve_diagram(data)
+        self.assertEqual(solved["status"], "error")
+        self.assertIn("No forward path", solved["message"])
+
     def test_validate_reports_off_path_and_isolated_nodes(self):
         result = validate_diagram(
             diagram([("S", "T", "G")], nodes=["S", "T", "Z"])
